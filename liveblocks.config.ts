@@ -1,50 +1,85 @@
-// Define Liveblocks types for your application
-// https://liveblocks.io/docs/api-reference/liveblocks-react#Typing-your-data
+import { createClient, LiveMap } from "@liveblocks/client";
+import { createRoomContext } from "@liveblocks/react";
+
+const client = createClient({
+  publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY!,
+});
 
 declare global {
   interface Liveblocks {
-    // Each user's Presence, for useMyPresence, useOthers, etc.
+    // Trạng thái real-time của mỗi user (ví dụ: con trỏ chuột)
     Presence: {
-      // Example, real-time cursor coordinates
-      // cursor: { x: number; y: number };
+      cursor?: { x: number; y: number } | null;
+      message: string | null;
     };
 
-    // The Storage tree for the room, for useMutation, useStorage, etc.
+    // Dữ liệu lưu trữ trên Liveblocks (bản đồ, danh sách, object)
     Storage: {
-      // Example, a conflict-free list
-      // animals: LiveList<string>;
+      canvasObjects: LiveMap<string, any>;
     };
 
-    // Custom user info set when authenticating with a secret key
+    // Metadata của user (id, thông tin bổ sung)
     UserMeta: {
       id: string;
-      info: {
-        // Example properties, for useSelf, useUser, useOthers, etc.
-        // name: string;
-        // avatar: string;
+      info?: {
+        name?: string;
+        avatar?: string;
       };
     };
 
-    // Custom events, for useBroadcastEvent, useEventListener
-    RoomEvent: {};
-    // Example has two events, using a union
-    // | { type: "PLAY" }
-    // | { type: "REACTION"; emoji: "🔥" };
+    // Sự kiện phòng (broadcasting events)
+    RoomEvent: { type: string; payload?: any };
 
-    // Custom metadata set on threads, for useThreads, useCreateThread, etc.
+    // Metadata của luồng bình luận (dành cho comments)
     ThreadMetadata: {
-      // Example, attaching coordinates to a thread
-      // x: number;
-      // y: number;
+      resolved: boolean;
+      zIndex: number;
+      time?: number;
+      x: number;
+      y: number;
     };
 
-    // Custom room info set with resolveRoomsInfo, for useRoomInfo
+    // Thông tin chung của phòng
     RoomInfo: {
-      // Example, rooms with a title and url
-      // title: string;
-      // url: string;
+      title?: string;
+      url?: string;
     };
   }
 }
 
-export {};
+// Xuất ra các hooks từ Liveblocks
+export const {
+  suspense: {
+    RoomProvider,
+    useRoom,
+    useMyPresence,
+    useUpdateMyPresence,
+    useSelf,
+    useOthers,
+    useOthersMapped,
+    useOthersConnectionIds,
+    useOther,
+    useBroadcastEvent,
+    useEventListener,
+    useErrorListener,
+    useStorage,
+    useBatch,
+    useHistory,
+    useUndo,
+    useRedo,
+    useCanUndo,
+    useCanRedo,
+    useMutation,
+    useStatus,
+    useLostConnectionListener,
+    useThreads,
+    useUser,
+    useCreateThread,
+    useEditThreadMetadata,
+    useCreateComment,
+    useEditComment,
+    useDeleteComment,
+    useAddReaction,
+    useRemoveReaction,
+  },
+} = createRoomContext(client);
